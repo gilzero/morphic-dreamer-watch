@@ -40,7 +40,7 @@ const exampleMessages = [
     message: 'What are the key factors to consider when authenticating vintage luxury watches? Focus on movement, dial, case, and documentation'
   },
   {
-    heading: 'Summary: https://www.globenewswire.com/.../Global-Watch-Market-Report-2024-2032-with-Focus-on-China.html',
+    heading: 'Summary: https://www.globenew...Watch-Report-2024-with-Focus-on-China.html',
     message: 'Summary: https://www.globenewswire.com/news-release/2024/08/14/2930293/28124/en/Global-Watch-Market-Report-2024-2032-with-Focus-on-China.html'
   }
 ]
