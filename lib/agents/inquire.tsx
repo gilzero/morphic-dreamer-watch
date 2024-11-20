@@ -35,13 +35,17 @@ export async function inquire(
 
     For example:
     {
-      "question": "What specific information are you seeking about Rivian?",
+      "question": "What specific information are you seeking about Rolex?",
       "options": [
         {"value": "history", "label": "History"},
         {"value": "products", "label": "Products"},
-        {"value": "investors", "label": "Investors"},
+        {"value": "aesthetics", "label": "Aesthetics"},
+        {"value": "technicalquality", "label": "TechnicalQuality"},
+        {"value": "customizationoptions", "label": "CustomizationOptions"},
         {"value": "partnerships", "label": "Partnerships"},
-        {"value": "competitors", "label": "Competitors"}
+        {"value": "ResalePotential", "label": "ResalePotential"},
+        {"value": "pricepoint", "label": "PricePoint"},
+        {"value": "investmentvalue", "label": "InvestmentValue"}
       ],
       "allowsInput": true,
       "inputLabel": "If other, please specify",

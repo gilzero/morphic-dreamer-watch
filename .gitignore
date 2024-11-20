@@ -19,8 +19,8 @@
 # misc
 .DS_Store
 *.pem
-*.lockb
 *.idea
+*.lockb
 
 # debug
 npm-debug.log*

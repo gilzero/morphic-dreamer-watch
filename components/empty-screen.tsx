@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 
+/*
 const exampleMessages = [
   {
     heading: 'What is OpenAI o1?',
@@ -19,6 +20,31 @@ const exampleMessages = [
     message: 'Summary: https://arxiv.org/pdf/2407.16833'
   }
 ]
+*/
+
+const exampleMessages = [
+  {
+    heading: 'Rolex Submariner vs Omega Seamaster',
+    message: 'Compare the features, heritage, and value proposition of the Rolex Submariner and Omega Seamaster dive watches'
+  },
+  {
+    heading: 'Watch Investment Guide 2024',
+    message: 'What are the best luxury watches to invest in for 2024? Consider factors like brand heritage, market demand, and historical appreciation'
+  },
+  {
+    heading: 'Understanding Watch Complications',
+    message: 'Explain the main watch complications (chronograph, perpetual calendar, tourbillon) and their significance in horology'
+  },
+  {
+    heading: 'Vintage Watch Authentication',
+    message: 'What are the key factors to consider when authenticating vintage luxury watches? Focus on movement, dial, case, and documentation'
+  },
+  {
+    heading: 'Summary: https://www.globenewswire.com/.../Global-Watch-Market-Report-2024-2032-with-Focus-on-China.html',
+    message: 'Summary: https://www.globenewswire.com/news-release/2024/08/14/2930293/28124/en/Global-Watch-Market-Report-2024-2032-with-Focus-on-China.html'
+  }
+]
+
 export function EmptyScreen({
   submitMessage,
   className
