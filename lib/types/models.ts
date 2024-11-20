@@ -7,18 +7,6 @@ export interface Model {
 
 export const models: Model[] = [
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    provider: 'OpenAI',
-    providerId: 'openai'
-  },
-  {
-    id: 'gpt-4o-mini',
-    name: 'GPT-4o mini',
-    provider: 'OpenAI',
-    providerId: 'openai'
-  },
-  {
     id: 'claude-3-5-sonnet-latest',
     name: 'Claude 3.5 Sonnet',
     provider: 'Anthropic',
@@ -29,6 +17,18 @@ export const models: Model[] = [
     name: 'Claude 3.5 Haiku',
     provider: 'Anthropic',
     providerId: 'anthropic'
+  },
+  {
+    id: 'gpt-4o',
+    name: 'GPT-4o',
+    provider: 'OpenAI',
+    providerId: 'openai'
+  },
+  {
+    id: 'gpt-4o-mini',
+    name: 'GPT-4o mini',
+    provider: 'OpenAI',
+    providerId: 'openai'
   },
   {
     id: 'gemini-1.5-pro-002',
@@ -42,22 +42,22 @@ export const models: Model[] = [
     provider: 'Groq',
     providerId: 'groq'
   },
-  {
-    id: 'qwen2.5',
-    name: 'Qwen 2.5',
-    provider: 'Ollama',
-    providerId: 'ollama'
-  },
-  {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    provider: 'Azure',
-    providerId: 'azure'
-  },
+  // {
+  //   id: 'qwen2.5',
+  //   name: 'Qwen 2.5',
+  //   provider: 'Ollama',
+  //   providerId: 'ollama'
+  // },
+  // {
+  //   id: 'gpt-4o',
+  //   name: 'GPT-4o',
+  //   provider: 'Azure',
+  //   providerId: 'azure'
+  // },
   {
     id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
     name: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'Undefined',
-    provider: 'OpenAI Compatible',
+    provider: 'Dreamer Model W',
     providerId: 'openai-compatible'
   }
 ]
