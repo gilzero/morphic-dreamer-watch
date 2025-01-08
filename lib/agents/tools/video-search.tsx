@@ -1,47 +1,60 @@
-import { tool } from 'ai'
-import { createStreamableValue } from 'ai/rsc'
-import { searchSchema } from '@/lib/schema/search'
-import { ToolProps } from '.'
-import { VideoSearchSection } from '@/components/video-search-section'
+// lib/agents/tools/video-search.tsx
+import { tool } from 'ai';
+import { createStreamableValue } from 'ai/rsc';
+import { searchSchema } from '@/lib/schema/search';
+import { ToolProps } from '.';
+import { VideoSearchSection } from '@/components/video-search-section';
+import { SerperSearchResults } from '@/lib/types';
 
-// Start Generation Here
-export const videoSearchTool = ({ uiStream, fullResponse }: ToolProps) => tool({
-  description: 'Search for videos from YouTube',
-  parameters: searchSchema,
-  execute: async ({ query }) => {
-    let hasError = false
-    // Append the search section
-    const streamResults = createStreamableValue<string>()
-    uiStream.append(<VideoSearchSection result={streamResults.value} />)
+export const videoSearchTool = ({ uiStream, fullResponse }: ToolProps) =>
+    tool({
+      description: 'Search for videos on YouTube related to watches using Serper',
+      parameters: searchSchema,
+      execute: async ({ query }) => {
+        let errored = false;
+        // Append the search section
+        const streamResults = createStreamableValue<string>();
+        uiStream.append(<VideoSearchSection result={streamResults.value} />);
 
-    let searchResult
-    try {
-      const response = await fetch('https://google.serper.dev/videos', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': process.env.SERPER_API_KEY || '',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ q: query })
-      })
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      searchResult = await response.json()
-    } catch (error) {
-      console.error('Video Search API error:', error)
-      hasError = true
-    }
+        let searchResult: SerperSearchResults | null = null;
 
-    if (hasError) {
-      fullResponse = `An error occurred while searching for videos with "${query}.`
-      uiStream.update(null)
-      streamResults.done()
-      return searchResult
-    }
+        try {
+          if (!process.env.SERPER_API_KEY) {
+            throw new Error('SERPER_API_KEY is not set in the environment variables');
+          }
+          const response = await fetch('https://google.serper.dev/videos', {
+            method: 'POST',
+            headers: {
+              'X-API-KEY': process.env.SERPER_API_KEY,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ q: query }),
+          });
+          if (!response.ok) {
+            throw new Error(
+                `Serper API error: ${response.status} ${response.statusText}`
+            );
+          }
+          searchResult = await response.json();
+        } catch (error: any) {
+          errored = true;
+          fullResponse = `An error occurred while searching for videos with "${query}".`;
+          if (error?.message) {
+            fullResponse = `An error occurred while searching for videos with "${query}": ${error.message}`;
+          }
+          console.error('Video Search API error:', error);
+        }
 
-    streamResults.done(JSON.stringify(searchResult))
+        if (errored || !searchResult) {
+          uiStream.update(null);
+          streamResults.done();
+          return {
+            searchParameters: { q: query, type: 'video', engine: 'google' },
+            videos: [],
+          };
+        }
 
-    return searchResult
-  }
-})
+        streamResults.done(JSON.stringify(searchResult));
+        return searchResult;
+      },
+    });
