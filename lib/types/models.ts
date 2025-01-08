@@ -8,40 +8,40 @@ export interface Model {
 export const models: Model[] = [
   {
     id: 'claude-3-5-sonnet-latest',
-    name: 'Claude 3.5 Sonnet',
-    provider: 'Anthropic',
+    name: 'DreamerAI 3.5 Standard',
+    provider: 'DreamerAI',
     providerId: 'anthropic'
   },
   {
     id: 'claude-3-5-haiku-20241022',
-    name: 'Claude 3.5 Haiku',
-    provider: 'Anthropic',
+    name: 'DreamerAI 3.5 Speedy',
+    provider: 'DreamerAI',
     providerId: 'anthropic'
   },
-  {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    provider: 'OpenAI',
-    providerId: 'openai'
-  },
+  // {
+  //   id: 'gpt-4o',
+  //   name: 'GPT-4o',
+  //   provider: 'OpenAI',
+  //   providerId: 'openai'
+  // },
   {
     id: 'gpt-4o-mini',
-    name: 'GPT-4o mini',
-    provider: 'OpenAI',
+    name: 'DreamerAI 4 Mini',
+    provider: 'DreamerAI',
     providerId: 'openai'
   },
   {
-    id: 'gemini-1.5-pro-002',
-    name: 'Gemini 1.5 Pro',
-    provider: 'Google Generative AI',
+    id: 'gemini-2.0-flash-exp',
+    name: 'DreamerAI Flash 2',
+    provider: 'DreamerAI Pro',
     providerId: 'google'
   },
-  {
-    id: 'llama3-groq-8b-8192-tool-use-preview',
-    name: 'LLama 3 Groq 8B Tool Use',
-    provider: 'Groq',
-    providerId: 'groq'
-  },
+  // {
+  //   id: 'llama3-groq-8b-8192-tool-use-preview',
+  //   name: 'LLama 3 Groq 8B Tool Use',
+  //   provider: 'Groq',
+  //   providerId: 'groq'
+  // },
   // {
   //   id: 'qwen2.5',
   //   name: 'Qwen 2.5',
@@ -56,8 +56,8 @@ export const models: Model[] = [
   // },
   {
     id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
-    name: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'Undefined',
-    provider: 'Dreamer Model W',
+    name: 'DreamerAI Live W',
+    provider: 'DreamerAI Pro',
     providerId: 'openai-compatible'
   }
 ]
