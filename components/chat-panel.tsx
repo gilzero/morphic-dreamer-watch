@@ -174,10 +174,10 @@ export function ChatPanel({ messages, query, onModelChange }: ChatPanelProps) {
                 tabIndex={0}
                 onCompositionStart={handleCompositionStart}
                 onCompositionEnd={handleCompositionEnd}
-                placeholder="Ask a question..."
+                placeholder="Ask me anything about watches..." // More descriptive placeholder
                 spellCheck={false}
                 value={input}
-                className="resize-none w-full min-h-12 rounded-fill bg-muted border border-input pl-4 pr-10 pt-3 pb-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="resize-none w-full min-h-14 rounded-fill bg-muted border border-input pl-4 pr-10 pt-3 pb-1 text-lg ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" // Increased min-h and text-lg
                 onChange={(e) => {
                   setInput(e.target.value);
                   setShowEmptyScreen(e.target.value.length === 0);
@@ -225,7 +225,7 @@ export function ChatPanel({ messages, query, onModelChange }: ChatPanelProps) {
                 size={'icon'}
                 variant={'ghost'}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                disabled={input.length === 0 || isGenerating} // Disable button during loading
+                disabled={input.length === 0 || isGenerating}
             >
               {isGenerating ? <Spinner /> : <ArrowRight size={20} />}
             </Button>
