@@ -1,77 +1,131 @@
+// components/empty-screen.tsx
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 
-/*
-const exampleMessages = [
+const allMessages = [
   {
-    heading: 'What is OpenAI o1?',
-    message: 'What is OpenAI o1?'
+    heading: '🚀 What watches have been worn in space exploration?',
+    message: 'What watches have been worn in space exploration? From the Omega Speedmaster to modern Mars mission timepieces'
   },
   {
-    heading: 'Why is Nvidia growing rapidly?',
-    message: 'Why is Nvidia growing rapidly?'
+    heading: '🎨 Rise of Independent Watchmakers?',
+    message: 'Explore the growing influence of independent watchmakers like F.P. Journe, MB&F, and H. Moser. What makes their approach unique?'
   },
   {
-    heading: 'Tesla vs Rivian',
-    message: 'Tesla vs Rivian'
+    heading: '🌊 Dive Watch Evolution',
+    message: 'How have dive watches evolved from the Blancpain Fifty Fathoms to modern professional diving instruments?'
   },
   {
-    heading: 'Summary: https://arxiv.org/pdf/2407.16833',
-    message: 'Summary: https://arxiv.org/pdf/2407.16833'
+    heading: '⌚️ Smart vs Mechanical Luxury',
+    message: 'How are traditional luxury watchmakers responding to smartwatches? Analyze hybrid approaches and market adaptation'
+  },
+  {
+    heading: '👨‍🎨 Who are legendary Watch Designers',
+    message: 'Who are the most influential watch designers in history? From Gerald Genta to modern visionaries'
+  },
+  {
+    heading: '🎯 Art of Guilloche?',
+    message: 'Explain the traditional craft of guilloche dial-making and its role in modern luxury watchmaking'
+  },
+  {
+    heading: '🪖 What makes a military watch?',
+    message: 'What makes a military watch? Analyze historical specifications and modern interpretations'
+  },
+  {
+    heading: '🎯 Chronometer Certification',
+    message: 'What does COSC certification mean? Compare different chronometer standards and their significance'
+  },
+  {
+    heading: '🏎️ Racing Chronographs?',
+    message: 'Explore the connection between automotive racing and chronograph watches, from Heuer to modern racing partnerships'
+  },
+  {
+    heading: '📈 Watch Investment Bubbles?',
+    message: 'Analyze historical watch market bubbles and crashes. What lessons can collectors learn?'
+  },
+  {
+    heading: '👑 Patek vs Lange?',
+    message: 'Compare A. Lange & Söhne and Patek Philippe - their philosophies, finishing standards, and value proposition'
+  },
+  {
+    heading: '🗾 Japanese Watchmaking?',
+    message: 'How do Japanese luxury watches from Grand Seiko and Credor compare to Swiss counterparts in terms of craftsmanship?'
+  },
+  {
+    heading: '📅 How do perpetual calendar mechanisms work?',
+    message: 'How do perpetual calendar mechanisms work? Explain the engineering behind these complex complications'
+  },
+  {
+    heading: '☄️ What are meteorite dials?',
+    message: 'What are meteorite dials? Explain their formation, rarity, and use in luxury watches'
+  },
+  {
+    heading: '🔨 Watch Auction Psychology?',
+    message: 'What drives record-breaking prices at watch auctions? Analyze collector psychology and market dynamics'
+  },
+  {
+    heading: '🌊 Resonance in Watches?',
+    message: 'Explain the principle of resonance in watchmaking and its implementation by brands like Armin Strom and F.P. Journe'
+  },
+  {
+    heading: '🏛️ Heritage vs Innovation?',
+    message: 'How do luxury watch brands balance traditional craftsmanship with modern innovation? Case studies of successful approaches'
+  },
+  {
+    heading: '🔔 What makes a great minute repeater?',
+    message: 'What makes a great minute repeater? Compare different approaches to this acoustic complication'
+  },
+  {
+    heading: '🧠 Watch Collecting Psychology?',
+    message: 'Analyze the psychology behind watch collecting - from acquisition patterns to emotional attachment'
+  },
+  {
+    heading: '🔮 Innovations and trends of future of Watchmaking?',
+    message: 'What innovations and trends will shape luxury watchmaking in the next decade? From materials to complications'
   }
 ]
-*/
 
-const exampleMessages = [
-  {
-    heading: 'Rolex Submariner vs Omega Seamaster',
-    message: 'Compare the features, heritage, and value proposition of the Rolex Submariner and Omega Seamaster dive watches'
-  },
-  {
-    heading: 'Watch Investment Guide 2024',
-    message: 'What are the best luxury watches to invest in for 2024? Consider factors like brand heritage, market demand, and historical appreciation'
-  },
-  {
-    heading: 'Understanding Watch Complications',
-    message: 'Explain the main watch complications (chronograph, perpetual calendar, tourbillon) and their significance in horology'
-  },
-  {
-    heading: 'Vintage Watch Authentication',
-    message: 'What are the key factors to consider when authenticating vintage luxury watches? Focus on movement, dial, case, and documentation'
-  },
-  {
-    heading: 'Summary: https://www.globenew...Watch-Report-2024-with-Focus-on-China.html',
-    message: 'Summary: https://www.globenewswire.com/news-release/2024/08/14/2930293/28124/en/Global-Watch-Market-Report-2024-2032-with-Focus-on-China.html'
-  }
-]
+function getRandomMessages(messages: typeof allMessages, count: number) {
+  const shuffled = [...messages].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, count)
+}
 
 export function EmptyScreen({
-  submitMessage,
-  className
-}: {
+                              submitMessage,
+                              className
+                            }: {
   submitMessage: (message: string) => void
   className?: string
 }) {
+  const [exampleMessages, setExampleMessages] = useState<typeof allMessages>([])
+
+  useEffect(() => {
+    setExampleMessages(getRandomMessages(allMessages, 5))
+  }, [])
+
+  if (exampleMessages.length === 0) return null
+
   return (
-    <div className={`mx-auto w-full transition-all ${className}`}>
-      <div className="bg-background p-2">
-        <div className="mt-4 flex flex-col items-start space-y-2 mb-4">
-          {exampleMessages.map((message, index) => (
-            <Button
-              key={index}
-              variant="link"
-              className="h-auto p-0 text-base"
-              name={message.message}
-              onClick={async () => {
-                submitMessage(message.message)
-              }}
-            >
-              <ArrowRight size={16} className="mr-2 text-muted-foreground" />
-              {message.heading}
-            </Button>
-          ))}
+      <div className={`mx-auto w-full transition-all ${className}`}>
+        <div className="bg-background p-2">
+          <div className="mt-4 flex flex-col items-start space-y-2 mb-4">
+            {exampleMessages.map((message, index) => (
+                <Button
+                    key={index}
+                    variant="link"
+                    className="h-auto p-0 text-base"
+                    name={message.message}
+                    onClick={async () => {
+                      submitMessage(message.message)
+                    }}
+                >
+                  <ArrowRight size={16} className="mr-2 text-muted-foreground" />
+                  {message.heading}
+                </Button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
   )
 }

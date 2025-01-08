@@ -9,13 +9,31 @@ import { querySuggestor, inquire, taskManager, researcher } from '@/lib/agents';
 import { createStreamableValue, createStreamableUI } from 'ai/rsc';
 import { CoreMessage, generateId } from 'ai';
 
+// TypeScript interfaces for type safety
+interface UIState {
+  uiStream: ReturnType<typeof createStreamableUI>;
+  isCollapsed: ReturnType<typeof createStreamableValue>;
+  isGenerating: ReturnType<typeof createStreamableValue>;
+}
+
+interface AIState {
+  get: () => any;
+  update: (state: any) => void;
+  done: (state: any) => void;
+}
+
+interface ToolResult {
+  result: any;
+  toolName: string;
+}
+
+interface Action {
+  object: { next: string };
+}
+
 export async function workflow(
-    uiState: {
-      uiStream: ReturnType<typeof createStreamableUI>;
-      isCollapsed: ReturnType<typeof createStreamableValue>;
-      isGenerating: ReturnType<typeof createStreamableValue>;
-    },
-    aiState: any,
+    uiState: UIState,
+    aiState: AIState,
     messages: CoreMessage[],
     skip: boolean,
     model: string
@@ -23,104 +41,105 @@ export async function workflow(
   const { uiStream, isCollapsed, isGenerating } = uiState;
   const id = generateId();
 
-  // Display spinner
-  uiStream.append(<Spinner />);
+  // Helper function to update AI state
+  const updateAIState = (updates: any) => aiState.update({ ...aiState.get(), ...updates });
 
-  let action = { object: { next: 'proceed' } };
-  // If the user does not skip the task, run the task manager
-  if (!skip) action = (await taskManager(messages, model)) ?? action;
+  // Helper function to handle completion
+  const completeAIState = (updates: any) => aiState.done({ ...aiState.get(), ...updates });
 
-  if (action.object.next === 'inquire') {
-    // Generate inquiry
-    const inquiry = await inquire(uiStream, messages, model);
-    uiStream.done();
-    aiState.done({
-      ...aiState.get(),
+  try {
+    // Display spinner
+    uiStream.append(<Spinner />);
+
+    let action: Action = { object: { next: 'proceed' } };
+
+    if (!skip) {
+      action = (await taskManager(messages, model)) ?? action;
+    }
+
+    if (action.object.next === 'inquire') {
+      const inquiry = await inquire(uiStream, messages, model);
+      uiStream.done();
+      completeAIState({
+        messages: [
+          ...aiState.get().messages,
+          {
+            id: generateId(),
+            role: 'assistant',
+            content: `inquiry: ${inquiry?.question}`,
+            type: 'inquiry',
+          },
+        ],
+      });
+
+      isCollapsed.done(false);
+      isGenerating.done(false);
+      return;
+    }
+
+    isCollapsed.done(true);
+    uiStream.update(null);
+
+    const { text, toolResults } = await researcher(uiStream, messages, model);
+
+    updateAIState({
       messages: [
         ...aiState.get().messages,
+        ...toolResults.map((toolResult: ToolResult) => ({
+          id,
+          role: 'tool',
+          content: JSON.stringify(toolResult.result),
+          name: toolResult.toolName,
+          type: 'tool',
+        })),
         {
-          id: generateId(),
+          id,
           role: 'assistant',
-          content: `inquiry: ${inquiry?.question}`,
-          type: 'inquiry',
+          content: text,
+          type: 'answer',
         },
       ],
     });
 
-    isCollapsed.done(false);
+    const messagesWithAnswer: CoreMessage[] = [
+      ...messages,
+      { role: 'assistant', content: text },
+    ];
+
+    const relatedQueries = await querySuggestor(uiStream, messagesWithAnswer, model);
+
+    uiStream.append(
+        <Section title="Follow-up">
+          <FollowupPanel />
+        </Section>
+    );
+
+    uiStream.done();
     isGenerating.done(false);
-    return;
+
+    completeAIState({
+      messages: [
+        ...aiState.get().messages,
+        {
+          id,
+          role: 'assistant',
+          content: JSON.stringify(relatedQueries),
+          type: 'related',
+        },
+        {
+          id,
+          role: 'assistant',
+          content: 'followup',
+          type: 'followup',
+        },
+      ],
+    });
+  } catch (error) {
+    console.error('Error in workflow:', error);
+    uiStream.done();
+    isGenerating.done(false);
+    completeAIState({
+      error: 'An error occurred during the workflow. Please try again.',
+    });
   }
-
-  // Set the collapsed state to true
-  isCollapsed.done(true);
-
-  // Remove the spinner
-  uiStream.update(null);
-
-  // Select the appropriate researcher function based on the environment variables
-  const { text, toolResults } = await researcher(uiStream, messages, model);
-
-  aiState.update({
-    ...aiState.get(),
-    messages: [
-      ...aiState.get().messages,
-      ...toolResults.map((toolResult: any) => ({
-        id,
-        role: 'tool',
-        content: JSON.stringify(toolResult.result),
-        name: toolResult.toolName,
-        type: 'tool',
-      })),
-      {
-        id,
-        role: 'assistant',
-        content: text,
-        type: 'answer',
-      },
-    ],
-  });
-
-  const messagesWithAnswer: CoreMessage[] = [
-    ...messages,
-    {
-      role: 'assistant',
-      content: text,
-    },
-  ];
-
-  // Generate related queries
-  const relatedQueries = await querySuggestor(
-      uiStream,
-      messagesWithAnswer,
-      model
-  );
-  // Add follow-up panel
-  uiStream.append(
-      <Section title="Follow-up">
-        <FollowupPanel />
-      </Section>
-  );
-
-  uiStream.done();
-  isGenerating.done(false);
-
-  aiState.done({
-    ...aiState.get(),
-    messages: [
-      ...aiState.get().messages,
-      {
-        id,
-        role: 'assistant',
-        content: JSON.stringify(relatedQueries),
-        type: 'related',
-      },
-      {
-        id,
-        role: 'assistant',
-        content: 'followup',
-        type: 'followup',
-      },
-    ],
-  });
 }
