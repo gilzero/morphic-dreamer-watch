@@ -18,8 +18,7 @@ export const searchTool = ({ uiStream, fullResponse }: ToolProps) =>
                         include_domains,
                         exclude_domains,
                       }) => {
-        let hasError = false;
-        // Append the search section
+        let errored = false;
         const streamResults = createStreamableValue<string>();
         uiStream.append(
             <SearchSection
@@ -28,49 +27,46 @@ export const searchTool = ({ uiStream, fullResponse }: ToolProps) =>
             />
         );
 
-        // Tavily API requires a minimum of 5 characters in the query
-        const filledQuery =
-            query.length < 5 ? query + ' '.repeat(5 - query.length) : query;
-        let searchResult: SearchResults;
+        const adjustedQuery = query.length < 5 ? query.padEnd(5, ' ') : query;
 
         if (max_results <= 0) {
-          hasError = true;
+          errored = true;
           fullResponse = `Invalid max_results value: ${max_results}. Must be a positive number.`;
-          searchResult = {
+          uiStream.update(null);
+          streamResults.done();
+          return {
             results: [],
-            query: filledQuery,
+            query: adjustedQuery,
             images: [],
             number_of_results: 0,
           };
-          uiStream.update(null);
-          streamResults.done();
-          return searchResult;
         }
 
+        let searchResult: SearchResults;
         try {
           searchResult = await tavilySearch(
-              filledQuery,
+              adjustedQuery,
               max_results,
-              search_depth as 'basic' | 'advanced',
+              search_depth === 'advanced' ? 'advanced' : 'basic',
               include_domains,
               exclude_domains
           );
-        } catch (error) {
-          console.error('Tavily Search API error:', error);
-          hasError = true;
-          fullResponse = `An error occurred while searching for "${filledQuery}".`;
-          if (error instanceof Error) {
-            fullResponse = `An error occurred while searching for "${filledQuery}": ${error.message}`;
+        } catch (error: any) {
+          errored = true;
+          if (error?.message) {
+            fullResponse = `An error occurred while searching for "${adjustedQuery}": ${error.message}`;
+          } else {
+            fullResponse = `An error occurred while searching for "${adjustedQuery}".`;
           }
           searchResult = {
             results: [],
-            query: filledQuery,
+            query: adjustedQuery,
             images: [],
             number_of_results: 0,
           };
         }
 
-        if (hasError) {
+        if (errored) {
           uiStream.update(null);
           streamResults.done();
           return searchResult;
@@ -92,50 +88,33 @@ async function tavilySearch(
   if (!apiKey) {
     throw new Error('TAVILY_API_KEY is not set in the environment variables');
   }
-  const includeImageDescriptions = true;
   const response = await fetch('https://api.tavily.com/search', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       api_key: apiKey,
       query,
       max_results: Math.max(maxResults, 5),
       search_depth: searchDepth,
       include_images: true,
-      include_image_descriptions: includeImageDescriptions,
+      include_image_descriptions: true,
       include_answers: true,
       include_domains: includeDomains,
       exclude_domains: excludeDomains,
     }),
   });
-
   if (!response.ok) {
-    throw new Error(
-        `Tavily API error: ${response.status} ${response.statusText}`
-    );
+    throw new Error(`Tavily API error: ${response.status} ${response.statusText}`);
   }
-
   const data = await response.json();
-  const processedImages = includeImageDescriptions
-      ? data.images
-          .map(({ url, description }: { url: string; description: string }) => ({
-            url: sanitizeUrl(url),
-            description,
-          }))
-          .filter(
-              (
-                  image: SearchResultImage
-              ): image is { url: string; description: string } =>
-                  typeof image === 'object' &&
-                  image.description !== undefined &&
-                  image.description !== ''
-          )
-      : data.images.map((url: string) => sanitizeUrl(url));
-
-  return {
-    ...data,
-    images: processedImages,
-  };
+  const processedImages = data.images
+      .map(({ url, description }: { url: string; description: string }) => ({
+        url: sanitizeUrl(url),
+        description,
+      }))
+      .filter(
+          (img: SearchResultImage): img is { url: string; description: string } =>
+              typeof img === 'object' && img.description !== undefined
+      );
+  return { ...data, images: processedImages };
 }
