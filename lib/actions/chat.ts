@@ -1,4 +1,4 @@
-// Filepath: lib/actions/chat.ts
+// lib/actions/chat.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -9,6 +9,21 @@ import { getRedisClientServer } from '@/lib/redis/server-utils';
 
 async function getRedis(): Promise<RedisWrapper> {
   return await getRedisClientServer();
+}
+
+function parseChatMessages(chat: any): Chat {
+  const plainChat = { ...chat };
+  if (typeof plainChat.messages === 'string') {
+    try {
+      plainChat.messages = JSON.parse(plainChat.messages);
+    } catch (error) {
+      plainChat.messages = [];
+    }
+  }
+  if (plainChat.createdAt && !(plainChat.createdAt instanceof Date)) {
+    plainChat.createdAt = new Date(plainChat.createdAt);
+  }
+  return plainChat as Chat;
 }
 
 export async function getChats(userId?: string | null) {
@@ -40,23 +55,9 @@ export async function getChats(userId?: string | null) {
           }
           return true;
         })
-        .map((chat) => {
-          const plainChat = { ...chat };
-          if (typeof plainChat.messages === 'string') {
-            try {
-              plainChat.messages = JSON.parse(plainChat.messages);
-            } catch (error) {
-              plainChat.messages = [];
-            }
-          }
-          if (plainChat.createdAt && !(plainChat.createdAt instanceof Date)) {
-            plainChat.createdAt = new Date(plainChat.createdAt);
-          }
-          return plainChat as Chat;
-        });
+        .map(parseChatMessages);
   } catch (error) {
     console.error('Error fetching chats:', error);
-    // Return an empty array or a more informative error object
     return [];
   }
 }
@@ -70,21 +71,7 @@ export async function getChat(id: string, userId: string = 'anonymous') {
       return null;
     }
 
-    // Parse the messages if they're stored as a string
-    if (typeof chat.messages === 'string') {
-      try {
-        chat.messages = JSON.parse(chat.messages);
-      } catch (error) {
-        chat.messages = [];
-      }
-    }
-
-    // Ensure messages is always an array
-    if (!Array.isArray(chat.messages)) {
-      chat.messages = [];
-    }
-
-    return chat;
+    return parseChatMessages(chat);
   } catch (error) {
     console.error('Error fetching chat:', error);
     return null;
@@ -149,7 +136,7 @@ export async function getSharedChat(id: string) {
       return null;
     }
 
-    return chat;
+    return parseChatMessages(chat);
   } catch (error) {
     console.error('Error fetching shared chat:', error);
     return null;
