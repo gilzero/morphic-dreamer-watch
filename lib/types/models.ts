@@ -42,18 +42,6 @@ export const models: Model[] = [
   //   provider: 'Groq',
   //   providerId: 'groq'
   // },
-  // {
-  //   id: 'qwen2.5',
-  //   name: 'Qwen 2.5',
-  //   provider: 'Ollama',
-  //   providerId: 'ollama'
-  // },
-  // {
-  //   id: 'gpt-4o',
-  //   name: 'GPT-4o',
-  //   provider: 'Azure',
-  //   providerId: 'azure'
-  // },
   {
     id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
     name: 'DreamerAI Live W',

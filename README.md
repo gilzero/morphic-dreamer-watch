@@ -30,9 +30,7 @@ An AI-powered search engine with a generative UI.
 - Use as a search engine [※](#-search-engine)
 - Support for providers other than OpenAI
   - Google Generative AI Provider
-  - Azure OpenAI Provider [※](https://github.com/miurla/morphic/issues/13)
   - Anthropic Provider
-  - Ollama Provider
   - Groq Provider
 - Local Redis support
 - SearXNG Search API support with customizable depth (basic or advanced)
@@ -127,14 +125,6 @@ To run the application locally using Bun, execute the following command:
 `bun dev`
 
 You can now visit http://localhost:3000 in your web browser.
-
-#### Using Docker
-
-To run the application using Docker, use the following command:
-
-`docker compose up -d`
-
-This will start the application in detached mode. You can access it at http://localhost:3000.
 
 ## 🌐 Deploy
 
@@ -235,8 +225,6 @@ engines:
   - Gemini 1.5 pro (Unstable)
 - Anthropic
   - Claude 3.5 Sonnet
-- Ollama
-  - qwen2.5
 - Groq
   - llama3-groq-8b-8192-tool-use-preview
   - llama3-groq-70b-8192-tool-use-preview
