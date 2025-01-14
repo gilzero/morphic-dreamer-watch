@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { SiDiscord, SiGithub, SiX } from 'react-icons/si'
 import { Button } from './ui/button'
+import { PiBirdFill } from 'react-icons/pi'
 
 const Footer: React.FC = () => {
   return (
@@ -12,8 +13,17 @@ const Footer: React.FC = () => {
           size={'icon'}
           className="text-muted-foreground/50"
         >
+          <Link href="https://www.dreamer.xyz" target="_blank">
+            <PiBirdFill size={18} className="animate-spin-custom" />
+          </Link>
+        </Button>
+        <Button
+          variant={'ghost'}
+          size={'icon'}
+          className="text-muted-foreground/50"
+        >
           <Link href="https://weiming.ai" target="_blank">
-            <SiDiscord size={18} />
+            <span className="text-lg font-bold">W</span>
           </Link>
         </Button>
         <Button

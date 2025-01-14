@@ -74,3 +74,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .header a {
+    @apply transition-opacity duration-300;
+  }
+  .header a:hover {
+    @apply opacity-80;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 2s linear infinite;
+}
+
+.animate-spin-custom {
+  animation: spin 1.5s linear infinite;
+}
