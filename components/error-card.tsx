@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This file defines the ErrorCard component, which
+ * renders a card displaying an error message and a retry button.
+ * @filepath components/error-card.tsx
+ */
 'use client'
 
 import React from 'react'
@@ -9,34 +14,50 @@ import { useUIState, useActions, useAIState } from 'ai/rsc'
 import { AI } from '@/app/actions'
 import { AIMessage } from '@/lib/types'
 
+/**
+ * Defines the props for the ErrorCard component.
+ */
 type ErrorCardProps = {
+  /** The error message to display. */
   errorMessage: string
 }
 
-export const ErrorCard: React.FC<ErrorCardProps> = ({ errorMessage }) => {
+/**
+ * Renders a card displaying an error message and a retry button.
+ *
+ * @param {ErrorCardProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered component.
+ */
+export const ErrorCard: React.FC<ErrorCardProps> = ({
+  errorMessage
+}) => {
   const [messages, setMessages] = useUIState<typeof AI>()
   const [aiState, setAIState] = useAIState<typeof AI>()
   const { submit } = useActions()
 
+  /**
+   * Handles the retry action. It removes the last message from the
+   * UI state, retrieves the last user message, and resubmits the
+   * inquiry.
+   *
+   * @returns {Promise<void>} A promise that resolves when the retry
+   *  action is complete.
+   */
   const handleRetry = async () => {
-    // Remove the last message from the UIState
     setMessages(messages.slice(0, -1))
 
     const aiMessages = aiState.messages
-    // Get the last message with role = user
     const lastUserMessage = [...aiMessages]
       .reverse()
       .find(m => m.role === 'user')
 
     let retryMessages: AIMessage[] = []
-    // Remove messages after lastUserMessage, cannot identify by id, so process by order
     if (lastUserMessage) {
       const lastUserMessageIndex = aiMessages.findIndex(
         m => m === lastUserMessage
       )
       retryMessages = aiMessages.slice(0, lastUserMessageIndex + 1)
     }
-    // Request retry from the server and add the response to the current messages
     const response = await submit(undefined, false, retryMessages)
     setMessages(currentMessages => [...currentMessages, response])
   }

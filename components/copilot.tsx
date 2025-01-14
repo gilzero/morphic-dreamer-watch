@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the Copilot component, a form
+ *  for interacting with an AI to answer questions. It handles
+ *  user input, form submission, and displays results.
+ * @filepath components/copilot.tsx
+ */
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -19,10 +25,21 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { models } from '@/lib/types/models'
 import { getDefaultModelId } from '@/lib/utils'
 
+/**
+ * Props for the Copilot component.
+ */
 export type CopilotProps = {
+  /**
+   * A streamable value containing the inquiry data.
+   */
   inquiry?: StreamableValue<PartialInquiry>
 }
 
+/**
+ * The Copilot component, a form for interacting with an AI.
+ * @param {CopilotProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered component.
+ */
 export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
   const [completed, setCompleted] = useState(false)
   const [query, setQuery] = useState('')
@@ -41,11 +58,19 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
     getDefaultModelId(models)
   )
 
+  /**
+   * Handles changes to the input field.
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The input change event.
+   */
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value)
     checkIfButtonShouldBeEnabled()
   }
 
+  /**
+   * Handles changes to the checkbox options.
+   * @param {string} selectedOption - The selected option.
+   */
   const handleOptionChange = (selectedOption: string) => {
     const updatedCheckedOptions = {
       ...checkedOptions,
@@ -55,6 +80,10 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
     checkIfButtonShouldBeEnabled(updatedCheckedOptions)
   }
 
+  /**
+   * Checks if the submit button should be enabled.
+   * @param {object} currentOptions - The current checked options.
+   */
   const checkIfButtonShouldBeEnabled = (currentOptions = checkedOptions) => {
     const anyCheckboxChecked = Object.values(currentOptions).some(
       checked => checked
@@ -62,6 +91,10 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
     setIsButtonDisabled(!(anyCheckboxChecked || query))
   }
 
+  /**
+   * Creates a string of the selected options and query.
+   * @returns {string} The updated query string.
+   */
   const updatedQuery = () => {
     const selectedOptions = Object.entries(checkedOptions)
       .filter(([, checked]) => checked)
@@ -79,6 +112,11 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
     setObject(data)
   }, [data])
 
+  /**
+   * Handles the form submission.
+   * @param {React.FormEvent<HTMLFormElement>} e - The form event.
+   * @param {boolean} [skip] - Whether to skip the form.
+   */
   const onFormSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
     skip?: boolean
@@ -91,19 +129,14 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
     setCompleted(true)
     setSkipped(skip || false)
 
-    // Always create FormData
     const formData = new FormData()
-
-    // Add model information
     formData.set('model', selectedModelId)
 
-    // If not skipping, add form data from the event
     if (!skip) {
       const form = e.target as HTMLFormElement
       const formEntries = Array.from(new FormData(form).entries())
       formEntries.forEach(([key, value]) => {
         if (key !== 'model') {
-          // Don't override model
           formData.append(key, value)
         }
       })
@@ -113,6 +146,10 @@ export const Copilot: React.FC<CopilotProps> = ({ inquiry }: CopilotProps) => {
     setMessages(currentMessages => [...currentMessages, response])
   }
 
+  /**
+   * Handles skipping the form.
+   * @param {React.MouseEvent<HTMLButtonElement>} e - The click event.
+   */
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
     onFormSubmit(e as unknown as React.FormEvent<HTMLFormElement>, true)
   }

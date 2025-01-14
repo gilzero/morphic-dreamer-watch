@@ -1,8 +1,16 @@
-// components/empty-screen.tsx
+/**
+ * @fileoverview This file defines the EmptyScreen component, which displays
+ * a set of example messages as buttons. It is used when no messages are
+ * available.
+ * @filepath components/empty-screen.tsx
+ */
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 
+/**
+ * An array of example messages, each with a heading and a message.
+ */
 const allMessages = [
   {
     heading: '🚀 What watches have been worn in space exploration?',
@@ -86,11 +94,27 @@ const allMessages = [
   }
 ]
 
+/**
+ * Returns a specified number of random messages from the given array.
+ *
+ * @param {typeof allMessages} messages - The array of messages to select from.
+ * @param {number} count - The number of random messages to return.
+ * @returns {typeof allMessages} An array containing the specified number of
+ * random messages.
+ */
 function getRandomMessages(messages: typeof allMessages, count: number) {
   const shuffled = [...messages].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, count)
 }
 
+/**
+ * EmptyScreen component displays a set of example messages as buttons.
+ *
+ * @param {Object} props - The component props.
+ * @param {function} props.submitMessage - Function to submit a message.
+ * @param {string} [props.className] - Optional CSS class name.
+ * @returns {JSX.Element|null} The EmptyScreen component or null if no messages.
+ */
 export function EmptyScreen({
                               submitMessage,
                               className

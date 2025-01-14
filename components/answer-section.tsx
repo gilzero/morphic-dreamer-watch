@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This file defines the AnswerSection component, which
+ * displays a bot's response, handling streaming data and loading states.
+ * @filepath components/answer-section.tsx
+ */
 'use client'
 
 import { Section } from './section'
@@ -6,11 +11,23 @@ import { BotMessage } from './message'
 import { useEffect, useState } from 'react'
 import { DefaultSkeleton } from './default-skeleton'
 
+/**
+ * Defines the props for the AnswerSection component.
+ */
 export type AnswerSectionProps = {
+  /** The streamable value containing the bot's response. */
   result?: StreamableValue<string>
+  /** Whether to display a header for the section. */
   hasHeader?: boolean
 }
 
+/**
+ * Renders a section displaying the bot's answer.
+ * Handles streaming data and loading states.
+ *
+ * @param {AnswerSectionProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered AnswerSection component.
+ */
 export function AnswerSection({
   result,
   hasHeader = true

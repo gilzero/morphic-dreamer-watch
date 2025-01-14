@@ -1,3 +1,10 @@
+/**
+ * @fileoverview This file defines the BotMessage component,
+ * which renders bot messages with Markdown, LaTeX, and code
+ * block support. It also includes a preprocessing function
+ * for LaTeX equations.
+ * @filepath components/message.tsx
+ */
 'use client'
 
 import { MemoizedReactMarkdown } from './ui/markdown'
@@ -8,13 +15,22 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { CodeBlock } from './ui/codeblock'
 
+/**
+ * Renders a bot message with Markdown, LaTeX, and code
+ * block support.
+ *
+ * @param {object} props - The component props.
+ * @param {string} props.content - The message content.
+ * @returns {JSX.Element} The rendered bot message.
+ */
 export function BotMessage({ content }: { content: string }) {
   // Check if the content contains LaTeX patterns
   const containsLaTeX = /\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)/.test(
     content || ''
   )
 
-  // Modify the content to render LaTeX equations if LaTeX patterns are found
+  // Modify the content to render LaTeX equations if LaTeX
+  // patterns are found
   const processedData = preprocessLaTeX(content || '')
 
   if (containsLaTeX) {
@@ -38,6 +54,16 @@ export function BotMessage({ content }: { content: string }) {
       remarkPlugins={[remarkGfm]}
       className="prose-sm prose-neutral prose-a:text-accent-foreground/50"
       components={{
+        /**
+         * Renders a code block with syntax highlighting.
+         *
+         * @param {object} props - The code block props.
+         * @param {object} props.node - The AST node.
+         * @param {boolean} props.inline - Whether the code is inline.
+         * @param {string} props.className - The code block class.
+         * @param {Array<string>} props.children - The code content.
+         * @returns {JSX.Element} The rendered code block.
+         */
         code({ node, inline, className, children, ...props }) {
           if (children.length) {
             if (children[0] == '▍') {
@@ -75,8 +101,13 @@ export function BotMessage({ content }: { content: string }) {
   )
 }
 
-// Preprocess LaTeX equations to be rendered by KaTeX
-// ref: https://github.com/remarkjs/react-markdown/issues/785
+/**
+ * Preprocesses LaTeX equations to be rendered by KaTeX.
+ *
+ * @param {string} content - The message content.
+ * @returns {string} The processed content with LaTeX
+ *   equations.
+ */
 const preprocessLaTeX = (content: string) => {
   const blockProcessedContent = content.replace(
     /\\\[([\s\S]*?)\\\]/g,

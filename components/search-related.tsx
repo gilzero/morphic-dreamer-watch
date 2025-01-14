@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the SearchRelated component,
+ * which displays related search queries and handles their
+ * submission.
+ * @filepath components/search-related.tsx
+ */
 'use client'
 
 import React, { useEffect, useState } from 'react'
@@ -18,10 +24,21 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { models } from '@/lib/types/models'
 import { getDefaultModelId } from '@/lib/utils'
 
+/**
+ * Defines the props for the SearchRelated component.
+ */
 export interface SearchRelatedProps {
+  /**
+   * A streamable value containing related search queries.
+   */
   relatedQueries: StreamableValue<PartialRelated>
 }
 
+/**
+ * Displays related search queries and handles their submission.
+ * @param {SearchRelatedProps} props - The component props.
+ * @returns {JSX.Element} The SearchRelated component.
+ */
 export const SearchRelated: React.FC<SearchRelatedProps> = ({
   relatedQueries
 }) => {
@@ -40,6 +57,10 @@ export const SearchRelated: React.FC<SearchRelatedProps> = ({
     setRelated(data)
   }, [data])
 
+  /**
+   * Handles the submission of a related search query.
+   * @param {React.FormEvent<HTMLFormElement>} event - The form event.
+   */
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget as HTMLFormElement)

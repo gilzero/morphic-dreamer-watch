@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This file defines the FollowupPanel component, which
+ * provides a form for users to ask follow-up questions.
+ * @filepath components/followup-panel.tsx
+ */
 'use client'
 
 import { useState } from 'react'
@@ -12,6 +17,12 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { models } from '@/lib/types/models'
 import { getDefaultModelId } from '@/lib/utils'
 
+/**
+ * FollowupPanel component.
+ *
+ * Provides a form for users to ask follow-up questions.
+ * @returns {JSX.Element} The rendered component.
+ */
 export function FollowupPanel() {
   const [input, setInput] = useState('')
   const { submit } = useActions()
@@ -23,6 +34,11 @@ export function FollowupPanel() {
     getDefaultModelId(models)
   )
 
+  /**
+   * Handles the form submission.
+   * @param {React.FormEvent<HTMLFormElement>} event - The form event.
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -32,7 +48,6 @@ export function FollowupPanel() {
     setInput('')
 
     const formData = new FormData(event.currentTarget as HTMLFormElement)
-    // Add model information to formData
     formData.set('model', selectedModelId)
 
     const userMessage = {

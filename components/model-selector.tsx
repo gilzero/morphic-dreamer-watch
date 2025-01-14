@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the ModelSelector component,
+ * which allows users to select a model from a list of available
+ * models, grouped by provider.
+ * @filepath components/model-selector.tsx
+ */
 'use client'
 
 import {
@@ -13,11 +19,22 @@ import Image from 'next/image'
 import { Model, models } from '@/lib/types/models'
 import { createModelId } from '@/lib/utils'
 
+/**
+ * Defines the props for the ModelSelector component.
+ */
 interface ModelSelectorProps {
+  /** The currently selected model ID. */
   selectedModelId: string
+  /** Callback function to handle model selection changes. */
   onModelChange: (id: string) => void
 }
 
+/**
+ * Groups an array of models by their provider.
+ * @param {Model[]} models - The array of models to group.
+ * @returns {Record<string, Model[]>} An object where keys are
+ * providers and values are arrays of models for that provider.
+ */
 function groupModelsByProvider(models: Model[]) {
   return models.reduce((groups, model) => {
     const provider = model.provider
@@ -29,10 +46,21 @@ function groupModelsByProvider(models: Model[]) {
   }, {} as Record<string, Model[]>)
 }
 
+/**
+ * A component that renders a dropdown to select a model.
+ * @param {ModelSelectorProps} props - The props for the
+ * ModelSelector component.
+ * @returns {JSX.Element} A JSX element representing the model
+ * selector dropdown.
+ */
 export function ModelSelector({
   selectedModelId,
   onModelChange
 }: ModelSelectorProps) {
+  /**
+   * Handles the change of the selected model.
+   * @param {string} id - The ID of the selected model.
+   */
   const handleModelChange = (id: string) => {
     onModelChange(id)
   }

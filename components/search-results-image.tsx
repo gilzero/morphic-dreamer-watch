@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the SearchResultsImageSection
+ * component, which displays a set of images in a grid and
+ * allows users to view them in a carousel dialog.
+ * @filepath components/search-results-image.tsx
+ */
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
@@ -22,11 +28,23 @@ import { useEffect, useState } from 'react'
 import { PlusCircle } from 'lucide-react'
 import { SearchResultImage } from '@/lib/types'
 
+/**
+ * Defines the props for the SearchResultsImageSection component.
+ */
 interface SearchResultsImageSectionProps {
+  /** An array of image URLs or objects with URL and description. */
   images: SearchResultImage[]
+  /** An optional query string related to the images. */
   query?: string
 }
 
+/**
+ * Renders a section displaying search result images.
+ * @param {SearchResultsImageSectionProps} props - The props for
+ * the component.
+ * @returns {JSX.Element} A section containing the search result
+ * images.
+ */
 export const SearchResultsImageSection: React.FC<
   SearchResultsImageSectionProps
 > = ({ images, query }) => {
@@ -35,7 +53,10 @@ export const SearchResultsImageSection: React.FC<
   const [count, setCount] = useState(0)
   const [selectedIndex, setSelectedIndex] = useState(0)
 
-  // Update the current and count state when the carousel api is available
+  /**
+   * Updates the current and count state when the carousel api
+   * is available.
+   */
   useEffect(() => {
     if (!api) {
       return
@@ -49,7 +70,9 @@ export const SearchResultsImageSection: React.FC<
     })
   }, [api])
 
-  // Scroll to the selected index
+  /**
+   * Scrolls to the selected index in the carousel.
+   */
   useEffect(() => {
     if (api) {
       api.scrollTo(selectedIndex, true)
@@ -60,7 +83,8 @@ export const SearchResultsImageSection: React.FC<
     return <div className="text-muted-foreground">No images found</div>
   }
 
-  // If enabled the include_images_description is true, the images will be an array of { url: string, description: string }
+  // If enabled the include_images_description is true, the images
+  // will be an array of { url: string, description: string }
   // Otherwise, the images will be an array of strings
   let convertedImages: { url: string; description: string }[] = []
   if (typeof images[0] === 'string') {

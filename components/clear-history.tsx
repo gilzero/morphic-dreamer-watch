@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the ClearHistory component, which
+ * provides a user interface for clearing chat history. It uses an
+ * alert dialog to confirm the action and handles the clearing process.
+ * @filepath components/clear-history.tsx
+ */
 'use client'
 
 import { useState, useTransition } from 'react'
@@ -18,12 +24,22 @@ import { toast } from 'sonner'
 import { Spinner } from './ui/spinner'
 
 type ClearHistoryProps = {
+  /** If true, the clear history button is disabled. */
   empty: boolean
 }
 
+/**
+ * ClearHistory component provides a button to clear chat history
+ * with a confirmation dialog.
+ * @param {ClearHistoryProps} props - The props for the component.
+ * @returns {JSX.Element} The ClearHistory component.
+ */
 export function ClearHistory({ empty }: ClearHistoryProps) {
+  /** @type {[boolean, function]} - State for controlling the dialog open state. */
   const [open, setOpen] = useState(false)
+  /** @type {[boolean, function]} - State for tracking the transition. */
   const [isPending, startTransition] = useTransition()
+
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>

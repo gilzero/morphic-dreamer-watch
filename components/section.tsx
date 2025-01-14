@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This file defines the Section component, which
+ * renders a section with an optional title, icon, and separator.
+ * @filepath components/section.tsx
+ */
 'use client'
 
 import { cn } from '@/lib/utils'
@@ -13,14 +18,27 @@ import {
 import React from 'react'
 import { Separator } from './ui/separator'
 
+/**
+ * Defines the props for the Section component.
+ */
 type SectionProps = {
+  /** The content of the section. */
   children: React.ReactNode
+  /** Additional CSS class names for the section. */
   className?: string
+  /** The size of the section (sm, md, or lg). */
   size?: 'sm' | 'md' | 'lg'
+  /** The title of the section. */
   title?: string
+  /** Whether to display a separator above the section. */
   separator?: boolean
 }
 
+/**
+ * Renders a section with an optional title, icon, and separator.
+ * @param {SectionProps} props - The props for the component.
+ * @returns {JSX.Element} A section element.
+ */
 export const Section: React.FC<SectionProps> = ({
   children,
   className,

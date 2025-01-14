@@ -24,12 +24,12 @@ export interface Model {
  * corresponding details.
  */
 export const models: Model[] = [
-  {
-    id: 'claude-3-5-sonnet-latest',
-    name: 'DreamerAI 3.5 Standard',
-    provider: 'DreamerAI',
-    providerId: 'anthropic',
-  },
+  // {
+  //   id: 'claude-3-5-sonnet-latest',
+  //   name: 'DreamerAI 3.5 Standard',
+  //   provider: 'DreamerAI',
+  //   providerId: 'anthropic',
+  // },
   {
     id: 'claude-3-5-haiku-20241022',
     name: 'DreamerAI 3.5 Speedy',
@@ -45,12 +45,18 @@ export const models: Model[] = [
   {
     id: 'gemini-2.0-flash-exp',
     name: 'DreamerAI Flash 2',
-    provider: 'DreamerAI Pro',
+    provider: 'DreamerAI',
     providerId: 'google',
   },
   {
     id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
     name: 'DreamerAI Live W',
+    provider: 'DreamerAI Pro',
+    providerId: 'openai-compatible',
+  },
+  {
+    id: 'llama-3.1-sonar-huge-128k-online',
+    name: 'DreamerAI Live W Huge',
     provider: 'DreamerAI Pro',
     providerId: 'openai-compatible',
   },

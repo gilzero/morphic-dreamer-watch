@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the ModeToggle component,
+ * which allows users to switch between light, dark, and
+ * system themes using a dropdown menu.
+ * @filepath components/mode-toggle.tsx
+ */
 'use client'
 
 import * as React from 'react'
@@ -12,6 +18,12 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
+/**
+ * Renders a dropdown menu that allows users to toggle
+ * between light, dark, and system themes.
+ *
+ * @returns {JSX.Element} A dropdown menu for theme selection.
+ */
 export function ModeToggle() {
   const { setTheme } = useTheme()
 

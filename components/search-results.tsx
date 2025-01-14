@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the SearchResults component,
+ * which displays a list of search results with an option to
+ * view more.
+ * @filepath components/search-results.tsx
+ */
 'use client'
 
 import { useState } from 'react'
@@ -7,20 +13,38 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { SearchResultItem } from '@/lib/types'
 
+/**
+ * Defines the props for the SearchResults component.
+ */
 export interface SearchResultsProps {
+  /** An array of search result items to display. */
   results: SearchResultItem[]
 }
 
+/**
+ * Renders a list of search results, with an option to view more.
+ * @param {SearchResultsProps} props - The props for the component.
+ * @returns {JSX.Element} A div containing the search results.
+ */
 export function SearchResults({ results }: SearchResultsProps) {
-  // State to manage whether to display the results
+  // State to manage whether to display all results
   const [showAllResults, setShowAllResults] = useState(false)
 
+  /**
+   * Handles the click event to show all search results.
+   */
   const handleViewMore = () => {
     setShowAllResults(true)
   }
 
   const displayedResults = showAllResults ? results : results.slice(0, 3)
-  const additionalResultsCount = results.length > 3 ? results.length - 3 : 0
+  const additionalResultsCount = results.length > 3 ?
+    results.length - 3 : 0
+  /**
+   * Extracts and formats the hostname from a URL.
+   * @param {string} url - The URL to extract the hostname from.
+   * @returns {string} The formatted hostname.
+   */
   const displayUrlName = (url: string) => {
     const hostname = new URL(url).hostname
     const parts = hostname.split('.')

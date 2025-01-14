@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the History component, which
+ * renders a sheet containing the chat history. It uses
+ * next-navigation for routing and manages loading states.
+ * @filepath components/history.tsx
+ */
 'use client'
 
 import { useTransition } from 'react'
@@ -22,11 +28,27 @@ type HistoryProps = {
   children?: React.ReactNode
 }
 
+/**
+ * Renders a history sheet component.
+ *
+ * @param {HistoryProps} props - The props for the History component.
+ * @param {string} props.location - The location of the history
+ *   component ('sidebar' or 'header').
+ * @param {React.ReactNode} [props.children] - The children to
+ *   render within the history sheet.
+ * @returns {JSX.Element} The History component.
+ */
 export function History({ location, children }: HistoryProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const { isGenerating, setIsGenerating } = useAppState()
 
+  /**
+   * Handles the sheet's open state change. Refreshes the router
+   * when the sheet is opened.
+   *
+   * @param {boolean} open - Whether the sheet is open.
+   */
   const onOpenChange = (open: boolean) => {
     if (open) {
       startTransition(() => {

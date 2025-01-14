@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the HistoryList component, which
+ * displays a list of chat history items. It fetches chat data
+ * and renders each chat as a HistoryItem.
+ * @filepath components/history-list.tsx
+ */
 import React, { cache } from 'react'
 import HistoryItem from './history-item'
 import { Chat } from '@/lib/types'
@@ -5,14 +11,25 @@ import { getChats } from '@/lib/actions/chat'
 import { ClearHistory } from './clear-history'
 
 type HistoryListProps = {
+  /** The ID of the user whose chat history to display. */
   userId?: string
 }
 
+/**
+ * Fetches the chat history for a given user.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<Chat[]>} A promise that resolves to an array
+ * of chat objects.
+ */
 const loadChats = cache(async (userId?: string) => {
   return await getChats(userId)
 })
 
-// Start of Selection
+/**
+ * Renders a list of chat history items.
+ * @param {HistoryListProps} props - The component props.
+ * @returns {JSX.Element} A div containing the list of history items.
+ */
 export async function HistoryList({ userId }: HistoryListProps) {
   const chats = await loadChats(userId)
 

@@ -1,8 +1,17 @@
+/**
+ * @fileoverview This file defines the global CSS styles for the
+ * application, including base styles, theme variables, and
+ * animations.
+ * @filepath app/globals.css
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /**
+   * Defines the root CSS variables for light mode.
+   */
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -35,6 +44,9 @@
     --radius: 0.5rem;
   }
 
+  /**
+   * Defines the root CSS variables for dark mode.
+   */
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -67,23 +79,39 @@
 }
 
 @layer base {
+  /**
+   * Applies border styles to all elements.
+   */
   * {
     @apply border-border;
   }
+  /**
+   * Applies background and text styles to the body.
+   */
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer components {
+
+  /**
+   * Applies transition styles to header links.
+   */
   .header a {
     @apply transition-opacity duration-300;
   }
+  /**
+   * Applies hover styles to header links.
+   */
   .header a:hover {
     @apply opacity-80;
   }
 }
 
+/**
+ * Defines the spin animation.
+ */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -93,10 +121,24 @@
   }
 }
 
+/**
+ * Applies the spin animation.
+ */
 .animate-spin {
   animation: spin 2s linear infinite;
 }
 
+/**
+ * Applies a custom spin animation.
+ */
 .animate-spin-custom {
   animation: spin 1.5s linear infinite;
+}
+
+/**
+ * Applies a margin-top to the first message in the chat.
+ */
+
+div.px-4.sm\:px-8.md\:px-12.pt-12.md\:pt-14.pb-14.md\:pb-24.max-w-3xl.mx-auto.flex.flex-col.space-y-3.md\:space-y-4 > div:nth-child(1) > div > div {
+  margin-top: 2rem;
 }

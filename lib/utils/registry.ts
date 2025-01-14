@@ -1,9 +1,18 @@
+/**
+ * @fileoverview This file sets up and manages the provider registry
+ * for different AI models, including OpenAI, Anthropic, Google,
+ * Groq, and OpenAI-compatible models. It also provides utility
+ * functions to retrieve models and check if a provider is enabled.
+ * @filepath lib/utils/registry.ts
+ */
 import { experimental_createProviderRegistry as createProviderRegistry } from 'ai'
 import { openai, createOpenAI } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { google } from '@ai-sdk/google'
 
-
+/**
+ * The registry of available AI providers.
+ */
 export const registry = createProviderRegistry({
   openai,
   anthropic,
@@ -18,10 +27,20 @@ export const registry = createProviderRegistry({
   })
 })
 
+/**
+ * Retrieves a language model from the registry.
+ * @param {string} model - The ID of the model to retrieve.
+ * @returns {any} The language model object.
+ */
 export function getModel(model: string) {
   return registry.languageModel(model)
 }
 
+/**
+ * Checks if a provider is enabled based on environment variables.
+ * @param {string} providerId - The ID of the provider to check.
+ * @returns {boolean} True if the provider is enabled, false otherwise.
+ */
 export function isProviderEnabled(providerId: string): boolean {
   switch (providerId) {
     case 'openai':

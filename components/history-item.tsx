@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This file defines the HistoryItem component, which
+ * renders a single item in the chat history list.
+ * @filepath components/history-item.tsx
+ */
 'use client'
 
 import React from 'react'
@@ -6,17 +11,32 @@ import { usePathname } from 'next/navigation'
 import { Chat } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+/**
+ * Defines the props for the HistoryItem component.
+ */
 type HistoryItemProps = {
+  /** The chat object containing chat details. */
   chat: Chat
 }
 
-const formatDateWithTime = (date: Date | string) => {
+/**
+ * Formats a date with time, displaying "Today", "Yesterday", or
+ * the full date and time.
+ * @param {Date | string} date - The date to format.
+ * @returns {string} The formatted date string.
+ */
+const formatDateWithTime = (date: Date | string): string => {
   const parsedDate = new Date(date)
   const now = new Date()
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
 
-  const formatTime = (date: Date) => {
+  /**
+   * Formats the time of a given date.
+   * @param {Date} date - The date to format.
+   * @returns {string} The formatted time string.
+   */
+  const formatTime = (date: Date): string => {
     return date.toLocaleString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
@@ -48,6 +68,11 @@ const formatDateWithTime = (date: Date | string) => {
   }
 }
 
+/**
+ * Renders a single history item.
+ * @param {HistoryItemProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered HistoryItem component.
+ */
 const HistoryItem: React.FC<HistoryItemProps> = ({ chat }) => {
   const pathname = usePathname()
   const isActive = pathname === chat.path

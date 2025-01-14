@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the ChatShare component, which
+ * provides a button to share a chat and displays a dialog with
+ * a shareable link.
+ * @filepath components/chat-share.tsx
+ */
 'use client'
 
 import { useState, useTransition } from 'react'
@@ -17,17 +23,33 @@ import { toast } from 'sonner'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { Spinner } from './ui/spinner'
 
+/**
+ * Defines the props for the ChatShare component.
+ */
 interface ChatShareProps {
+  /** The ID of the chat to share. */
   chatId: string
+  /** Optional CSS class name for styling. */
   className?: string
 }
 
+/**
+ * ChatShare component provides a button to share a chat and displays
+ * a dialog with a shareable link.
+ *
+ * @param {ChatShareProps} props - The component props.
+ * @returns {JSX.Element} The ChatShare component.
+ */
 export function ChatShare({ chatId, className }: ChatShareProps) {
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
   const { copyToClipboard } = useCopyToClipboard({ timeout: 1000 })
   const [shareUrl, setShareUrl] = useState('')
 
+  /**
+   * Handles the share action, fetching the shareable link and
+   * updating the state.
+   */
   const handleShare = async () => {
     startTransition(() => {
       setOpen(true)
@@ -47,6 +69,9 @@ export function ChatShare({ chatId, className }: ChatShareProps) {
     setShareUrl(url.toString())
   }
 
+  /**
+   * Handles copying the shareable link to the clipboard.
+   */
   const handleCopy = () => {
     if (shareUrl) {
       copyToClipboard(shareUrl)
