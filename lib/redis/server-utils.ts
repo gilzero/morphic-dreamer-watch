@@ -1,4 +1,10 @@
-// lib/redis/server-utils.ts
+/**
+ * @fileoverview This file provides utility functions for managing
+ * connections to both local and Upstash Redis instances. It includes
+ * functions to obtain a Redis client and close existing connections.
+ * 
+ * @filepath lib/redis/server-utils.ts
+ */
 'use server';
 
 import { Redis } from '@upstash/redis';
@@ -8,6 +14,15 @@ import { RedisConfig, RedisWrapper, redisConfig } from './config';
 let localRedisClient: RedisClientType | null = null;
 let redisWrapper: RedisWrapper | null = null;
 
+/**
+ * Retrieves a Redis client wrapped in a RedisWrapper instance. It
+ * connects to either a local Redis instance or an Upstash Redis
+ * instance based on the configuration.
+ * 
+ * @returns {Promise<RedisWrapper>} A promise that resolves to a
+ * RedisWrapper instance.
+ * @throws Will throw an error if the connection to Redis fails.
+ */
 export async function getRedisClientServer(): Promise<RedisWrapper> {
     if (redisWrapper) {
         return redisWrapper;
@@ -97,6 +112,13 @@ export async function getRedisClientServer(): Promise<RedisWrapper> {
     return redisWrapper;
 }
 
+/**
+ * Closes the existing Redis connections, both local and Upstash,
+ * if they are open.
+ * 
+ * @returns {Promise<void>} A promise that resolves when the
+ * connections are closed.
+ */
 export async function closeRedisConnectionServer(): Promise<void> {
     if (redisWrapper) {
         await redisWrapper.close();

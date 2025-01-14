@@ -69,6 +69,7 @@ export const INQUIRE_SYSTEM_PROMPT = `As a professional web researcher, your rol
 
     By providing predefined options, you guide the user towards the most relevant aspects of their query, while the free-form input allows them to provide additional context or specific details not covered by the options.
     Remember, your goal is to gather the necessary information to deliver a thorough and accurate response.
+
     Please match the language of the response (question, labels, inputLabel, and inputPlaceholder) to the user's language, but keep the "value" field in English.
 `;
 
@@ -82,6 +83,7 @@ export const QUERY_SUGGESTOR_SYSTEM_PROMPT = `As a professional web researcher, 
     For instance, if the original query was "Rolex Datejust evolution and milestones", your output should follow this format:
 
     Aim to create queries that progressively delve into more specific aspects, implications, or adjacent topics related to the initial query. The goal is to anticipate the user's potential information needs and guide them towards a more comprehensive understanding of the subject matter.
+    
     Please match the language of the response to the user's language.`;
 
 /**

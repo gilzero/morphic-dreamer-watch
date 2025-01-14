@@ -19,7 +19,7 @@ import HistoryContainer from './history-container'
  */
 export const Header: React.FC = async () => {
   return (
-    <header className="fixed w-full p-2 md:p-4 flex justify-between items-center z-10 backdrop-blur md:backdrop-blur-none bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg mb-4">
+    <header className="fixed w-full p-2 md:p-4 flex justify-between items-center z-10 backdrop-blur md:backdrop-blur-none bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg">
       <div>
         <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <FaRegClock className={cn('w-6 h-6 animate-spin')} />

@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This file defines the server actions and AI state
+ * management for the application. It handles user input,
+ * manages the AI workflow, and updates the UI state.
+ * @filepath app/actions.tsx
+ */
 import {
   StreamableValue,
   createAI,
@@ -23,6 +29,13 @@ import { isProviderEnabled } from '@/lib/utils/registry'
 
 const MAX_MESSAGES = 6
 
+/**
+ * Submits user input to the AI workflow.
+ * @param {FormData} [formData] - The form data containing user input.
+ * @param {boolean} [skip] - Whether to skip the user input.
+ * @param {AIMessage[]} [retryMessages] - Messages to retry.
+ * @returns {Promise<UIState>} The updated UI state.
+ */
 async function submit(
   formData?: FormData,
   skip?: boolean,
@@ -36,7 +49,6 @@ async function submit(
   const isCollapsed = createStreamableValue(false)
 
   const aiMessages = [...(retryMessages ?? aiState.get().messages)]
-  // Get the messages from the state, filter out the tool messages
   const messages: CoreMessage[] = aiMessages
     .filter(
       message =>
@@ -50,9 +62,7 @@ async function submit(
       return { role, content } as CoreMessage
     })
 
-  // Limit the number of messages to the maximum
   messages.splice(0, Math.max(messages.length - MAX_MESSAGES, 0))
-  // Get the user input from the form data
   const userInput = skip
     ? `{"action": "skip"}`
     : (formData?.get('input') as string)
@@ -70,18 +80,15 @@ async function submit(
     ? 'input_related'
     : 'inquiry'
 
-  // Get the model from the form data (e.g., openai:gpt-4o-mini)
   const model = (formData?.get('model') as string) || 'openai:gpt-4o-mini'
   const providerId = model.split(':')[0]
   console.log(`Using model: ${model}`)
-  // Check if provider is enabled
   if (!isProviderEnabled(providerId)) {
     throw new Error(
       `Provider ${providerId} is not available (API key not configured or base URL not set)`
     )
   }
 
-  // Add the user message to the state
   if (content) {
     aiState.update({
       ...aiState.get(),
@@ -101,7 +108,6 @@ async function submit(
     })
   }
 
-  // Run the agent workflow
   workflow(
     { uiStream, isCollapsed, isGenerating },
     aiState,
@@ -118,12 +124,27 @@ async function submit(
   }
 }
 
+/**
+ * Defines the structure of the AI state.
+ * @typedef {object} AIState
+ * @property {AIMessage[]} messages - The list of messages in the chat.
+ * @property {string} chatId - The ID of the current chat.
+ * @property {boolean} [isSharePage] - Whether the page is a share page.
+ */
 export type AIState = {
   messages: AIMessage[]
   chatId: string
   isSharePage?: boolean
 }
 
+/**
+ * Defines the structure of the UI state.
+ * @typedef {object} UIState
+ * @property {string} id - The ID of the UI component.
+ * @property {React.ReactNode} component - The UI component.
+ * @property {StreamableValue<boolean>} [isGenerating] - Whether the component is generating.
+ * @property {StreamableValue<boolean>} [isCollapsed] - Whether the component is collapsed.
+ */
 export type UIState = {
   id: string
   component: React.ReactNode
@@ -138,13 +159,20 @@ const initialAIState: AIState = {
 
 const initialUIState: UIState = []
 
-// AI is a provider you wrap your application with so you can access AI and UI state in your components.
+/**
+ * AI is a provider you wrap your application with so you can access
+ * AI and UI state in your components.
+ */
 export const AI = createAI<AIState, UIState>({
   actions: {
     submit
   },
   initialUIState,
   initialAIState,
+  /**
+   * Retrieves the UI state based on the current AI state.
+   * @returns {Promise<UIState | undefined>} The UI state or undefined.
+   */
   onGetUIState: async () => {
     'use server'
 
@@ -156,10 +184,16 @@ export const AI = createAI<AIState, UIState>({
       return
     }
   },
+  /**
+   * Sets the AI state and saves the chat if an answer is present.
+   * @param {object} params - The parameters for setting the AI state.
+   * @param {AIState} params.state - The new AI state.
+   * @param {Function} params.done - The done callback.
+   * @returns {Promise<void>}
+   */
   onSetAIState: async ({ state, done }) => {
     'use server'
 
-    // Check if there is any message of type 'answer' in the state messages
     if (!state.messages.some(e => e.type === 'answer')) {
       return
     }
@@ -173,7 +207,6 @@ export const AI = createAI<AIState, UIState>({
         ? JSON.parse(messages[0].content)?.input?.substring(0, 100) ||
           'Untitled'
         : 'Untitled'
-    // Add an 'end' message at the end to determine if the history needs to be reloaded
     const updatedMessages: AIMessage[] = [
       ...messages,
       {
@@ -196,11 +229,15 @@ export const AI = createAI<AIState, UIState>({
   }
 })
 
+/**
+ * Generates the UI state from the AI state.
+ * @param {Chat} aiState - The current AI state.
+ * @returns {UIState} The generated UI state.
+ */
 export const getUIStateFromAIState = (aiState: Chat) => {
   const chatId = aiState.chatId
   const isSharePage = aiState.isSharePage
 
-  // Ensure messages is an array of plain objects
   const messages = Array.isArray(aiState.messages)
     ? aiState.messages.map(msg => ({ ...msg }))
     : []
