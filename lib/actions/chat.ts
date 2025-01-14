@@ -1,4 +1,8 @@
-// lib/actions/chat.ts
+/**
+ * @fileoverview This file contains server actions for managing chat data,
+ * including fetching, saving, clearing, and sharing chats using Redis.
+ * @filepath lib/actions/chat.ts
+ */
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,10 +11,19 @@ import { type Chat } from '@/lib/types';
 import { RedisWrapper } from '@/lib/redis/config';
 import { getRedisClientServer } from '@/lib/redis/server-utils';
 
+/**
+ * Retrieves a Redis client instance.
+ * @returns {Promise<RedisWrapper>} A promise that resolves to a Redis client.
+ */
 async function getRedis(): Promise<RedisWrapper> {
   return await getRedisClientServer();
 }
 
+/**
+ * Parses chat messages, handling stringified messages and date formats.
+ * @param {any} chat The chat object to parse.
+ * @returns {Chat} The parsed chat object.
+ */
 function parseChatMessages(chat: any): Chat {
   const plainChat = { ...chat };
   if (typeof plainChat.messages === 'string') {
@@ -26,7 +39,12 @@ function parseChatMessages(chat: any): Chat {
   return plainChat as Chat;
 }
 
-export async function getChats(userId?: string | null) {
+/**
+ * Retrieves all chats for a given user ID.
+ * @param {string | null} userId The ID of the user.
+ * @returns {Promise<Chat[]>} A promise that resolves to an array of chats.
+ */
+export async function getChats(userId?: string | null): Promise<Chat[]> {
   if (!userId) {
     return [];
   }
@@ -42,27 +60,36 @@ export async function getChats(userId?: string | null) {
     }
 
     const results = await Promise.all(
-        chats.map(async (chatKey) => {
-          const chat = await redis.hgetall(chatKey);
-          return chat;
-        })
+      chats.map(async (chatKey) => {
+        const chat = await redis.hgetall(chatKey);
+        return chat;
+      })
     );
 
     return results
-        .filter((result): result is Record<string, any> => {
-          if (result === null || Object.keys(result).length === 0) {
-            return false;
-          }
-          return true;
-        })
-        .map(parseChatMessages);
+      .filter((result): result is Record<string, any> => {
+        if (result === null || Object.keys(result).length === 0) {
+          return false;
+        }
+        return true;
+      })
+      .map(parseChatMessages);
   } catch (error) {
     console.error('Error fetching chats:', error);
     return [];
   }
 }
 
-export async function getChat(id: string, userId: string = 'anonymous') {
+/**
+ * Retrieves a single chat by its ID.
+ * @param {string} id The ID of the chat.
+ * @param {string} userId The ID of the user (default: 'anonymous').
+ * @returns {Promise<Chat | null>} A promise that resolves to the chat or null.
+ */
+export async function getChat(
+  id: string,
+  userId: string = 'anonymous'
+): Promise<Chat | null> {
   try {
     const redis = await getRedis();
     const chat = await redis.hgetall<Chat>(`chat:${id}`);
@@ -78,8 +105,14 @@ export async function getChat(id: string, userId: string = 'anonymous') {
   }
 }
 
+/**
+ * Clears all chats for a given user ID.
+ * @param {string} userId The ID of the user (default: 'anonymous').
+ * @returns {Promise<{ error?: string }>} A promise that resolves to an
+ * object with an error message or an empty object on success.
+ */
 export async function clearChats(
-    userId: string = 'anonymous'
+  userId: string = 'anonymous'
 ): Promise<{ error?: string }> {
   try {
     const redis = await getRedis();
@@ -98,13 +131,20 @@ export async function clearChats(
 
     revalidatePath('/');
     redirect('/');
-    return {}; // Return an empty object on success
+    return {};
   } catch (error) {
     console.error('Error clearing chats:', error);
     return { error: 'Failed to clear chats' };
   }
 }
 
+/**
+ * Saves a chat to Redis.
+ * @param {Chat} chat The chat object to save.
+ * @param {string} userId The ID of the user (default: 'anonymous').
+ * @returns {Promise<any>} A promise that resolves to the result of the
+ * Redis pipeline execution.
+ */
 export async function saveChat(chat: Chat, userId: string = 'anonymous') {
   try {
     const redis = await getRedis();
@@ -127,7 +167,13 @@ export async function saveChat(chat: Chat, userId: string = 'anonymous') {
   }
 }
 
-export async function getSharedChat(id: string) {
+/**
+ * Retrieves a shared chat by its ID.
+ * @param {string} id The ID of the chat.
+ * @returns {Promise<Chat | null>} A promise that resolves to the shared
+ * chat or null if not found or not shared.
+ */
+export async function getSharedChat(id: string): Promise<Chat | null> {
   try {
     const redis = await getRedis();
     const chat = await redis.hgetall<Chat>(`chat:${id}`);
@@ -143,7 +189,17 @@ export async function getSharedChat(id: string) {
   }
 }
 
-export async function shareChat(id: string, userId: string = 'anonymous') {
+/**
+ * Shares a chat by adding a share path to it.
+ * @param {string} id The ID of the chat.
+ * @param {string} userId The ID of the user (default: 'anonymous').
+ * @returns {Promise<Chat | null>} A promise that resolves to the updated
+ * chat object or null if the chat is not found or does not belong to the user.
+ */
+export async function shareChat(
+  id: string,
+  userId: string = 'anonymous'
+): Promise<Chat | null> {
   try {
     const redis = await getRedis();
     const chat = await redis.hgetall<Chat>(`chat:${id}`);

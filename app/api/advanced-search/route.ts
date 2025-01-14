@@ -1,33 +1,31 @@
+/**
+ * @fileoverview This file defines the API endpoint for advanced
+ * search functionality, utilizing caching results in Redis.
+ * It includes functions for fetching, parsing, and scoring search
+ * results, as well as handling cache operations.
+ * Note: The SearXNG integration has been removed, and the search
+ * functionality is currently unavailable.
+ * @filepath app/api/advanced-search/route.ts
+ */
 import { NextResponse } from 'next/server'
 import http from 'http'
 import https from 'https'
 import { JSDOM, VirtualConsole } from 'jsdom'
-import {
-  SearXNGSearchResults,
-  SearXNGResponse,
-  SearXNGResult,
-  SearchResultItem
-} from '@/lib/types'
 import { Agent } from 'http'
 import { Redis } from '@upstash/redis'
 import { createClient } from 'redis'
-
-/**
- * Maximum number of results to fetch from SearXNG.
- * Increasing this value can improve result quality but may impact performance.
- * In advanced search mode, this is multiplied by SEARXNG_CRAWL_MULTIPLIER for initial fetching.
- */
-const SEARXNG_MAX_RESULTS = Math.max(
-  10,
-  Math.min(100, parseInt(process.env.SEARXNG_MAX_RESULTS || '50', 10))
-)
 
 const CACHE_TTL = 3600 // Cache time-to-live in seconds (1 hour)
 const CACHE_EXPIRATION_CHECK_INTERVAL = 3600000 // 1 hour in milliseconds
 
 let redisClient: Redis | ReturnType<typeof createClient> | null = null
 
-// Initialize Redis client based on environment variables
+/**
+ * Initializes the Redis client based on environment variables.
+ * It supports both Upstash Redis and local Redis instances.
+ * @returns {Promise<Redis | ReturnType<typeof createClient> | null>}
+ * The Redis client instance or null if initialization fails.
+ */
 async function initializeRedisClient() {
   if (redisClient) return redisClient
 
@@ -53,10 +51,15 @@ async function initializeRedisClient() {
   return redisClient
 }
 
-// Function to get cached results
+/**
+ * Retrieves cached results from Redis.
+ * @param {string} cacheKey - The key to look up in the cache.
+ * @returns {Promise<any | null>} The cached data, or null if not found
+ * or an error occurs.
+ */
 async function getCachedResults(
   cacheKey: string
-): Promise<SearXNGSearchResults | null> {
+): Promise<any | null> {
   try {
     const client = await initializeRedisClient()
     if (!client) return null
@@ -81,10 +84,15 @@ async function getCachedResults(
   }
 }
 
-// Function to set cached results with error handling and logging
+/**
+ * Sets results in the Redis cache with error handling and logging.
+ * @param {string} cacheKey - The key to store the results under.
+ * @param {any} results - The data to cache.
+ * @returns {Promise<void>}
+ */
 async function setCachedResults(
   cacheKey: string,
-  results: SearXNGSearchResults
+  results: any
 ): Promise<void> {
   try {
     const client = await initializeRedisClient()
@@ -102,7 +110,10 @@ async function setCachedResults(
   }
 }
 
-// Function to periodically clean up expired cache entries
+/**
+ * Periodically cleans up expired cache entries from Redis.
+ * @returns {Promise<void>}
+ */
 async function cleanupExpiredCache() {
   try {
     const client = await initializeRedisClient()
@@ -124,16 +135,17 @@ async function cleanupExpiredCache() {
 // Set up periodic cache cleanup
 setInterval(cleanupExpiredCache, CACHE_EXPIRATION_CHECK_INTERVAL)
 
+/**
+ * Handles POST requests to the advanced search endpoint.
+ * @param {Request} request - The incoming request object.
+ * @returns {Promise<NextResponse>} The search results or an error
+ * response.
+ */
 export async function POST(request: Request) {
-  const { query, maxResults, searchDepth, includeDomains, excludeDomains } =
-    await request.json()
-
-  const SEARXNG_DEFAULT_DEPTH = process.env.SEARXNG_DEFAULT_DEPTH || 'basic'
+  const { query, maxResults, searchDepth, includeDomains, excludeDomains } = await request.json()
 
   try {
-    const cacheKey = `search:${query}:${maxResults}:${searchDepth}:${
-      Array.isArray(includeDomains) ? includeDomains.join(',') : ''
-    }:${Array.isArray(excludeDomains) ? excludeDomains.join(',') : ''}`
+    const cacheKey = `search:${query}:${maxResults}:${searchDepth}:${Array.isArray(includeDomains) ? includeDomains.join(',') : ''}:${Array.isArray(excludeDomains) ? excludeDomains.join(',') : ''}`
 
     // Try to get cached results
     const cachedResults = await getCachedResults(cacheKey)
@@ -141,169 +153,38 @@ export async function POST(request: Request) {
       return NextResponse.json(cachedResults)
     }
 
-    // If not cached, perform the search
-    const results = await advancedSearchXNGSearch(
-      query,
-      Math.min(maxResults, SEARXNG_MAX_RESULTS),
-      searchDepth || SEARXNG_DEFAULT_DEPTH,
-      Array.isArray(includeDomains) ? includeDomains : [],
-      Array.isArray(excludeDomains) ? excludeDomains : []
-    )
-
-    // Cache the results
-    await setCachedResults(cacheKey, results)
-
-    return NextResponse.json(results)
-  } catch (error) {
-    console.error('Advanced search error:', error)
-    return NextResponse.json(
-      {
-        message: 'Internal Server Error',
-        error: error instanceof Error ? error.message : String(error),
-        query: query,
-        results: [],
-        images: [],
-        number_of_results: 0
-      },
-      { status: 500 }
-    )
-  }
-}
-
-async function advancedSearchXNGSearch(
-  query: string,
-  maxResults: number = 10,
-  searchDepth: 'basic' | 'advanced' = 'advanced',
-  includeDomains: string[] = [],
-  excludeDomains: string[] = []
-): Promise<SearXNGSearchResults> {
-  const apiUrl = process.env.SEARXNG_API_URL
-  if (!apiUrl) {
-    throw new Error('SEARXNG_API_URL is not set in the environment variables')
-  }
-
-  const SEARXNG_ENGINES =
-    process.env.SEARXNG_ENGINES || 'google,bing,duckduckgo,wikipedia'
-  const SEARXNG_TIME_RANGE = process.env.SEARXNG_TIME_RANGE || 'None'
-  const SEARXNG_SAFESEARCH = process.env.SEARXNG_SAFESEARCH || '0'
-  const SEARXNG_CRAWL_MULTIPLIER = parseInt(
-    process.env.SEARXNG_CRAWL_MULTIPLIER || '4',
-    10
-  )
-
-  try {
-    const url = new URL(`${apiUrl}/search`)
-    url.searchParams.append('q', query)
-    url.searchParams.append('format', 'json')
-    url.searchParams.append('categories', 'general,images')
-
-    // Add time_range if it's not 'None'
-    if (SEARXNG_TIME_RANGE !== 'None') {
-      url.searchParams.append('time_range', SEARXNG_TIME_RANGE)
-    }
-
-    url.searchParams.append('safesearch', SEARXNG_SAFESEARCH)
-    url.searchParams.append('engines', SEARXNG_ENGINES)
-
-    const resultsPerPage = 10
-    const pageno = Math.ceil(maxResults / resultsPerPage)
-    url.searchParams.append('pageno', String(pageno))
-
-    //console.log('SearXNG API URL:', url.toString()) // Log the full URL for debugging
-
-    const data:
-      | SearXNGResponse
-      | { error: string; status: number; data: string } =
-      await fetchJsonWithRetry(url.toString(), 3)
-
-    if ('error' in data) {
-      console.error('Invalid response from SearXNG:', data)
-      throw new Error(
-        `Invalid response from SearXNG: ${data.error}. Status: ${data.status}. Data: ${data.data}`
-      )
-    }
-
-    if (!data || !Array.isArray(data.results)) {
-      console.error('Invalid response structure from SearXNG:', data)
-      throw new Error('Invalid response structure from SearXNG')
-    }
-
-    let generalResults = data.results.filter(
-      (result: SearXNGResult) => result && !result.img_src
-    )
-
-    // Apply domain filtering manually
-    if (includeDomains.length > 0 || excludeDomains.length > 0) {
-      generalResults = generalResults.filter(result => {
-        const domain = new URL(result.url).hostname
-        return (
-          (includeDomains.length === 0 ||
-            includeDomains.some(d => domain.includes(d))) &&
-          (excludeDomains.length === 0 ||
-            !excludeDomains.some(d => domain.includes(d)))
-        )
-      })
-    }
-
-    if (searchDepth === 'advanced') {
-      const crawledResults = await Promise.all(
-        generalResults
-          .slice(0, maxResults * SEARXNG_CRAWL_MULTIPLIER)
-          .map(result => crawlPage(result, query))
-      )
-      generalResults = crawledResults
-        .filter(result => result !== null && isQualityContent(result.content))
-        .map(result => result as SearXNGResult)
-
-      const MIN_RELEVANCE_SCORE = 10
-      generalResults = generalResults
-        .map(result => ({
-          ...result,
-          score: calculateRelevanceScore(result, query)
-        }))
-        .filter(result => result.score >= MIN_RELEVANCE_SCORE)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, maxResults)
-    }
-
-    generalResults = generalResults.slice(0, maxResults)
-
-    const imageResults = (data.results || [])
-      .filter((result: SearXNGResult) => result && result.img_src)
-      .slice(0, maxResults)
-
-    return {
-      results: generalResults.map(
-        (result: SearXNGResult): SearchResultItem => ({
-          title: result.title || '',
-          url: result.url || '',
-          content: result.content || ''
-        })
-      ),
-      query: data.query || query,
-      images: imageResults
-        .map((result: SearXNGResult) => {
-          const imgSrc = result.img_src || ''
-          return imgSrc.startsWith('http') ? imgSrc : `${apiUrl}${imgSrc}`
-        })
-        .filter(Boolean),
-      number_of_results: data.number_of_results || generalResults.length
-    }
-  } catch (error) {
-    console.error('SearchXNG API error:', error)
-    return {
-      results: [],
+    // Return a placeholder response or error since SearXNG is removed
+    return NextResponse.json({
+      message: 'Search functionality is currently unavailable.',
       query: query,
+      results: [],
       images: [],
       number_of_results: 0
-    }
+    })
+  } catch (error) {
+    console.error('Advanced search error:', error)
+    return NextResponse.json({
+      message: 'Internal Server Error',
+      error: error instanceof Error ? error.message : String(error),
+      query: query,
+      results: [],
+      images: [],
+      number_of_results: 0
+    }, { status: 500 })
   }
 }
 
+/**
+ * Crawls a webpage to extract and process its content.
+ * @param {any} result - The search result object containing the URL.
+ * @param {string} query - The original search query.
+ * @returns {Promise<any>} The modified result object with extracted
+ * content.
+ */
 async function crawlPage(
-  result: SearXNGResult,
+  result: any,
   query: string
-): Promise<SearXNGResult> {
+): Promise<any> {
   try {
     const html = await fetchHtmlWithTimeout(result.url, 20000)
 
@@ -396,6 +277,12 @@ async function crawlPage(
   }
 }
 
+/**
+ * Highlights query terms in the given content.
+ * @param {string} content - The text content to highlight.
+ * @param {string} query - The search query.
+ * @returns {string} The content with highlighted query terms.
+ */
 function highlightQueryTerms(content: string, query: string): string {
   try {
     const terms = query
@@ -421,7 +308,16 @@ function highlightQueryTerms(content: string, query: string): string {
   }
 }
 
-function calculateRelevanceScore(result: SearXNGResult, query: string): number {
+/**
+ * Calculates a relevance score for a search result.
+ * @param {any} result - The search result object.
+ * @param {string} query - The search query.
+ * @returns {number} The calculated relevance score.
+ */
+function calculateRelevanceScore(
+  result: any,
+  query: string
+): number {
   try {
     const lowercaseContent = result.content.toLowerCase()
     const lowercaseQuery = query.toLowerCase()
@@ -490,6 +386,11 @@ function calculateRelevanceScore(result: SearXNGResult, query: string): number {
   }
 }
 
+/**
+ * Extracts the publication date from a document.
+ * @param {Document} document - The HTML document object.
+ * @returns {Date | null} The publication date or null if not found.
+ */
 function extractPublicationDate(document: Document): Date | null {
   const dateSelectors = [
     'meta[name="article:published_time"]',
@@ -526,6 +427,12 @@ const httpsAgent = new https.Agent({
   //but use this with caution.
 })
 
+/**
+ * Fetches JSON data from a URL with retry logic.
+ * @param {string} url - The URL to fetch.
+ * @param {number} retries - The number of retry attempts.
+ * @returns {Promise<any>} The JSON data.
+ */
 async function fetchJsonWithRetry(url: string, retries: number): Promise<any> {
   for (let i = 0; i < retries; i++) {
     try {
@@ -537,6 +444,11 @@ async function fetchJsonWithRetry(url: string, retries: number): Promise<any> {
   }
 }
 
+/**
+ * Fetches JSON data from a URL.
+ * @param {string} url - The URL to fetch.
+ * @returns {Promise<any>} The JSON data.
+ */
 function fetchJson(url: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith('https:') ? https : http
@@ -573,6 +485,12 @@ function fetchJson(url: string): Promise<any> {
   })
 }
 
+/**
+ * Fetches HTML content from a URL with a timeout.
+ * @param {string} url - The URL to fetch.
+ * @param {number} timeoutMs - The timeout in milliseconds.
+ * @returns {Promise<string>} The HTML content.
+ */
 async function fetchHtmlWithTimeout(
   url: string,
   timeoutMs: number
@@ -589,6 +507,11 @@ async function fetchHtmlWithTimeout(
   }
 }
 
+/**
+ * Fetches HTML content from a URL.
+ * @param {string} url - The URL to fetch.
+ * @returns {Promise<string>} The HTML content.
+ */
 function fetchHtml(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith('https:') ? https : http
@@ -625,6 +548,12 @@ function fetchHtml(url: string): Promise<string> {
   })
 }
 
+/**
+ * Creates a promise that rejects after a specified timeout.
+ * @param {number} ms - The timeout in milliseconds.
+ * @param {string} message - The error message.
+ * @returns {Promise<never>} A promise that rejects after the timeout.
+ */
 function timeout(ms: number, message: string): Promise<never> {
   return new Promise((_, reject) => {
     setTimeout(() => {
@@ -633,6 +562,12 @@ function timeout(ms: number, message: string): Promise<never> {
   })
 }
 
+/**
+ * Checks if the given text is considered quality content.
+ * @param {string} text - The text to check.
+ * @returns {boolean} True if the content is considered quality,
+ * false otherwise.
+ */
 function isQualityContent(text: string): boolean {
   const words = text.split(/\s+/).length
   const sentences = text.split(/[.!?]+/).length

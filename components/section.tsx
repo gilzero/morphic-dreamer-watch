@@ -36,9 +36,6 @@ export const Section: React.FC<SectionProps> = ({
       // eslint-disable-next-line jsx-a11y/alt-text
       icon = <Image size={iconSize} className={iconClassName} />
       break
-    case 'Videos':
-      icon = <Film size={iconSize} className={iconClassName} />
-      break
     case 'Sources':
       icon = <Newspaper size={iconSize} className={iconClassName} />
       break

@@ -33,9 +33,7 @@ An AI-powered search engine with a generative UI.
   - Anthropic Provider
   - Groq Provider
 - Local Redis support
-- SearXNG Search API support with customizable depth (basic or advanced)
 - Configurable search depth (basic or advanced)
-- SearXNG Search API support with customizable depth
 
 ## 🧱 Stack
 

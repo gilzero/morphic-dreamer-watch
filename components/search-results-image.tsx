@@ -78,7 +78,7 @@ export const SearchResultsImageSection: React.FC<
         <Dialog key={index}>
           <DialogTrigger asChild>
             <div
-              className="w-[calc(50%-0.5rem)] md:w-[calc(25%-0.5rem)] aspect-video cursor-pointer relative"
+              className="w-[calc(50%-0.5rem)] md:w-[calc(25%-0.5rem)] cursor-pointer relative"
               onClick={() => setSelectedIndex(index)}
             >
               <Card className="flex-1 h-full">

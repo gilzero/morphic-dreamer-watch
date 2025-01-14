@@ -17,7 +17,6 @@ import { SearchSection } from '@/components/search-section'
 import SearchRelated from '@/components/search-related'
 import { CopilotDisplay } from '@/components/copilot-display'
 import RetrieveSection from '@/components/retrieve-section'
-import { VideoSearchSection } from '@/components/video-search-section'
 import { AnswerSection } from '@/components/answer-section'
 import { workflow } from '@/lib/actions/workflow'
 import { isProviderEnabled } from '@/lib/utils/registry'
@@ -287,14 +286,6 @@ export const getUIStateFromAIState = (aiState: Chat) => {
                 return {
                   id,
                   component: <RetrieveSection data={toolOutput} />,
-                  isCollapsed: isCollapsed.value
-                }
-              case 'videoSearch':
-                return {
-                  id,
-                  component: (
-                    <VideoSearchSection result={searchResults.value} />
-                  ),
                   isCollapsed: isCollapsed.value
                 }
             }

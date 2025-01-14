@@ -1,51 +1,57 @@
+/**
+ * @fileoverview This file defines the data structures for
+ * available models and their providers.
+ * @filepath lib/types/models.ts
+ */
+
+/**
+ * Represents a model with its unique identifier, name,
+ * provider, and provider-specific ID.
+ */
 export interface Model {
-  id: string
-  name: string
-  provider: string
-  providerId: string
+  /** Unique identifier for the model. */
+  id: string;
+  /** Human-readable name of the model. */
+  name: string;
+  /** Name of the model provider. */
+  provider: string;
+  /** Provider-specific identifier for the model. */
+  providerId: string;
 }
 
+/**
+ * An array of available models, each with its
+ * corresponding details.
+ */
 export const models: Model[] = [
   {
     id: 'claude-3-5-sonnet-latest',
     name: 'DreamerAI 3.5 Standard',
     provider: 'DreamerAI',
-    providerId: 'anthropic'
+    providerId: 'anthropic',
   },
   {
     id: 'claude-3-5-haiku-20241022',
     name: 'DreamerAI 3.5 Speedy',
     provider: 'DreamerAI',
-    providerId: 'anthropic'
+    providerId: 'anthropic',
   },
-  // {
-  //   id: 'gpt-4o',
-  //   name: 'GPT-4o',
-  //   provider: 'OpenAI',
-  //   providerId: 'openai'
-  // },
   {
     id: 'gpt-4o-mini',
     name: 'DreamerAI 4 Mini',
     provider: 'DreamerAI',
-    providerId: 'openai'
+    providerId: 'openai',
   },
   {
     id: 'gemini-2.0-flash-exp',
     name: 'DreamerAI Flash 2',
     provider: 'DreamerAI Pro',
-    providerId: 'google'
+    providerId: 'google',
   },
-  // {
-  //   id: 'llama3-groq-8b-8192-tool-use-preview',
-  //   name: 'LLama 3 Groq 8B Tool Use',
-  //   provider: 'Groq',
-  //   providerId: 'groq'
-  // },
   {
     id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
     name: 'DreamerAI Live W',
     provider: 'DreamerAI Pro',
-    providerId: 'openai-compatible'
-  }
-]
+    providerId: 'openai-compatible',
+  },
+];

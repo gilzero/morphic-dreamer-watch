@@ -1,4 +1,9 @@
-// lib/actions/workflow.tsx
+/**
+ * @fileoverview This file contains server actions for managing the
+ * workflow of AI interactions, including task management, inquiry,
+ * research, and query suggestion.
+ * @filepath lib/actions/workflow.tsx
+ */
 'use server';
 
 import React from 'react';
@@ -31,6 +36,16 @@ interface Action {
   object: { next: string };
 }
 
+/**
+ * Manages the workflow of AI interactions, including task
+ * management, inquiry, research, and query suggestion.
+ * @param {UIState} uiState - The UI state object.
+ * @param {AIState} aiState - The AI state object.
+ * @param {CoreMessage[]} messages - Array of core messages.
+ * @param {boolean} skip - Whether to skip task management.
+ * @param {string} model - The AI model to use.
+ * @returns {Promise<void>}
+ */
 export async function workflow(
     uiState: UIState,
     aiState: AIState,
@@ -41,11 +56,19 @@ export async function workflow(
   const { uiStream, isCollapsed, isGenerating } = uiState;
   const id = generateId();
 
-  // Helper function to update AI state
-  const updateAIState = (updates: any) => aiState.update({ ...aiState.get(), ...updates });
+  /**
+   * Helper function to update AI state.
+   * @param {any} updates - The updates to apply to the AI state.
+   */
+  const updateAIState = (updates: any) =>
+    aiState.update({ ...aiState.get(), ...updates });
 
-  // Helper function to handle completion
-  const completeAIState = (updates: any) => aiState.done({ ...aiState.get(), ...updates });
+  /**
+   * Helper function to handle completion of AI state.
+   * @param {any} updates - The updates to apply to the AI state.
+   */
+  const completeAIState = (updates: any) =>
+    aiState.done({ ...aiState.get(), ...updates });
 
   try {
     // Display spinner
