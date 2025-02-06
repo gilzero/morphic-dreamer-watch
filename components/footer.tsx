@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
           size={'icon'}
           className="text-muted-foreground/50"
         >
-          <Link href="https://dub.sh/gilzero" target="_blank">
+          <Link href="https://git.new/gilzero" target="_blank">
             <SiGithub size={18} />
           </Link>
         </Button>

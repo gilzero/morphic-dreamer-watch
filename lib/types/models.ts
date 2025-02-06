@@ -49,14 +49,14 @@ export const models: Model[] = [
     providerId: 'google',
   },
   {
-    id: process.env.NEXT_PUBLIC_OPENAI_COMPATIBLE_MODEL || 'undefined',
-    name: 'DreamerAI Live W',
+    id: 'sonar-pro',
+    name: 'DreamerAI W Pro',
     provider: 'DreamerAI Pro',
     providerId: 'openai-compatible',
   },
   {
-    id: 'llama-3.1-sonar-huge-128k-online',
-    name: 'DreamerAI Live W Huge',
+    id: 'sonar-reasoning-pro',
+    name: 'DreamerAI W Reasoning Pro',
     provider: 'DreamerAI Pro',
     providerId: 'openai-compatible',
   },

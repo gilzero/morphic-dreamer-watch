@@ -227,5 +227,12 @@ engines:
   - llama3-groq-8b-8192-tool-use-preview
   - llama3-groq-70b-8192-tool-use-preview
 
+## Roadmap
+
+- [x] Reasoning
+- [ ] 
+
 ## checkpoints
-20250108.01
+- [x] 20250108
+- [x] 20250206: add reasoning 
+
